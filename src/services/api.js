@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from "axios";
 
 const API_URL = "http://localhost:3001/api";
@@ -21,6 +20,7 @@ export const createUnit = (unitData) => axios.post(`${API_URL}/unit`, unitData);
 export const createStorage = (storageData) =>
   axios.post(`${API_URL}/storage`, storageData);
 export const createOS = (osData) => axios.post(`${API_URL}/os`, osData);
+export const createDisk = (diskData) => axios.post(`${API_URL}/disk`, diskData);
 
 export const getCloudProviders = () => axios.get(`${API_URL}/cloud-provider`);
 export const getDataCenters = () => axios.get(`${API_URL}/data-center`);
@@ -29,3 +29,4 @@ export const getUnits = () => axios.get(`${API_URL}/unit`);
 export const getOperatingSystems = () => axios.get(`${API_URL}/os`);
 export const getUsers = () => axios.get(`${API_URL}/users`);
 export const getStorage = () => axios.get(`${API_URL}/storage`);
+export const getVirtualMachines = () => axios.get(`${API_URL}/virtual-machine`);

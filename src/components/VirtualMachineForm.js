@@ -1,4 +1,3 @@
-// src/components/VirtualMachineForm.js
 import React, { useState, useEffect } from "react";
 import {
   createVirtualMachine,
@@ -22,6 +21,12 @@ const VirtualMachineForm = () => {
   const [units, setUnits] = useState([]);
   const [operatingSystems, setOperatingSystems] = useState([]);
   const [users, setUsers] = useState([]);
+  const [partitions, setPartitions] = useState([
+    { disk_id: "", size: "", unit_id: "", filesystem: "" },
+  ]);
+  const [ipAddresses, setIpAddresses] = useState([
+    { vlan: "", ipv4: "", ipv6: "" },
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +60,39 @@ const VirtualMachineForm = () => {
     fetchData();
   }, []);
 
+  const handlePartitionChange = (index, field, value) => {
+    const newPartitions = [...partitions];
+    newPartitions[index][field] = value;
+    setPartitions(newPartitions);
+  };
+
+  const handleAddPartition = () => {
+    setPartitions([
+      ...partitions,
+      { disk_id: "", size: "", unit_id: "", filesystem: "" },
+    ]);
+  };
+
+  const handleRemovePartition = (index) => {
+    const newPartitions = partitions.filter((_, i) => i !== index);
+    setPartitions(newPartitions);
+  };
+
+  const handleIpAddressChange = (index, field, value) => {
+    const newIpAddresses = [...ipAddresses];
+    newIpAddresses[index][field] = value;
+    setIpAddresses(newIpAddresses);
+  };
+
+  const handleAddIpAddress = () => {
+    setIpAddresses([...ipAddresses, { vlan: "", ipv4: "", ipv6: "" }]);
+  };
+
+  const handleRemoveIpAddress = (index) => {
+    const newIpAddresses = ipAddresses.filter((_, i) => i !== index);
+    setIpAddresses(newIpAddresses);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const parsedMemoryUnitId = parseInt(memoryUnitId, 10);
@@ -84,6 +122,8 @@ const VirtualMachineForm = () => {
         cloud_pool_id: parsedCloudPoolId,
         os_id: parsedOsId,
         user_id: parsedUserId,
+        partitions,
+        ip_addresses: ipAddresses,
       });
       console.log("Virtual Machine Created:", response.data);
     } catch (error) {
@@ -178,10 +218,102 @@ const VirtualMachineForm = () => {
           <select value={userId} onChange={(e) => setUserId(e.target.value)}>
             {users.map((user) => (
               <option key={user.user_id} value={user.user_id}>
-                {user.name} ({user.email})
+                {user.username} ({user.email})
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label>Partitions:</label>
+          {partitions.map((partition, index) => (
+            <div key={index}>
+              <input
+                type="number"
+                placeholder="Disk ID"
+                value={partition.disk_id}
+                onChange={(e) =>
+                  handlePartitionChange(index, "disk_id", e.target.value)
+                }
+              />
+              <input
+                type="number"
+                placeholder="Size"
+                value={partition.size}
+                onChange={(e) =>
+                  handlePartitionChange(index, "size", e.target.value)
+                }
+              />
+              <select
+                value={partition.unit_id}
+                onChange={(e) =>
+                  handlePartitionChange(index, "unit_id", e.target.value)
+                }
+              >
+                {units.map((unit) => (
+                  <option key={unit.unit_id} value={unit.unit_id}>
+                    {unit.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Filesystem"
+                value={partition.filesystem}
+                onChange={(e) =>
+                  handlePartitionChange(index, "filesystem", e.target.value)
+                }
+              />
+              <button
+                type="button"
+                onClick={() => handleRemovePartition(index)}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button type="button" onClick={handleAddPartition}>
+            Add Partition
+          </button>
+        </div>
+        <div>
+          <label>IP Addresses:</label>
+          {ipAddresses.map((ip, index) => (
+            <div key={index}>
+              <input
+                type="text"
+                placeholder="VLAN"
+                value={ip.vlan}
+                onChange={(e) =>
+                  handleIpAddressChange(index, "vlan", e.target.value)
+                }
+              />
+              <input
+                type="text"
+                placeholder="IPv4"
+                value={ip.ipv4}
+                onChange={(e) =>
+                  handleIpAddressChange(index, "ipv4", e.target.value)
+                }
+              />
+              <input
+                type="text"
+                placeholder="IPv6"
+                value={ip.ipv6}
+                onChange={(e) =>
+                  handleIpAddressChange(index, "ipv6", e.target.value)
+                }
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveIpAddress(index)}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button type="button" onClick={handleAddIpAddress}>
+            Add IP Address
+          </button>
         </div>
         <button type="submit">Create</button>
       </form>
