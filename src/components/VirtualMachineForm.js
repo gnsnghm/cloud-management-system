@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from "react";
 import {
-  createVirtualMachine,
   getCloudPools,
   getUnits,
   getOperatingSystems,
   getUsers,
+  createVirtualMachine,
+  getDisks,
 } from "../services/api";
 
 const VirtualMachineForm = () => {
   const [name, setName] = useState("");
-  const [memory, setMemory] = useState("");
+  const [memorySize, setMemorySize] = useState("");
   const [memoryUnitId, setMemoryUnitId] = useState("");
-  const [cpu, setCpu] = useState("");
-  const [diskCapacity, setDiskCapacity] = useState("");
+  const [diskSize, setDiskSize] = useState("");
   const [diskUnitId, setDiskUnitId] = useState("");
   const [cloudPoolId, setCloudPoolId] = useState("");
   const [osId, setOsId] = useState("");
   const [userId, setUserId] = useState("");
+  const [ipv4, setIpv4] = useState("");
+  const [ipv6, setIpv6] = useState("");
+  const [vlan, setVlan] = useState("");
+  const [partitions, setPartitions] = useState([]);
+  const [partitionSize, setPartitionSize] = useState("");
+  const [partitionUnitId, setPartitionUnitId] = useState("");
+  const [partitionFilesystem, setPartitionFilesystem] = useState("");
+  const [partitionDiskName, setPartitionDiskName] = useState("");
   const [cloudPools, setCloudPools] = useState([]);
   const [units, setUnits] = useState([]);
   const [operatingSystems, setOperatingSystems] = useState([]);
   const [users, setUsers] = useState([]);
-  const [partitions, setPartitions] = useState([
-    { disk_id: "", size: "", unit_id: "", filesystem: "" },
-  ]);
-  const [ipAddresses, setIpAddresses] = useState([
-    { vlan: "", ipv4: "", ipv6: "" },
-  ]);
+  const [disks, setDisks] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,22 +38,30 @@ const VirtualMachineForm = () => {
         const unitResponse = await getUnits();
         const osResponse = await getOperatingSystems();
         const userResponse = await getUsers();
+        const diskResponse = await getDisks();
+
         setCloudPools(cloudPoolResponse.data);
         setUnits(unitResponse.data);
         setOperatingSystems(osResponse.data);
         setUsers(userResponse.data);
+        setDisks(diskResponse.data);
+
         if (cloudPoolResponse.data.length > 0) {
-          setCloudPoolId(cloudPoolResponse.data[0].cloud_pool_id); // 初期値として最初のクラウドプールのIDをセット
+          setCloudPoolId(cloudPoolResponse.data[0].cloud_pool_id);
         }
         if (unitResponse.data.length > 0) {
-          setMemoryUnitId(unitResponse.data[0].unit_id); // 初期値として最初の単位IDをセット
-          setDiskUnitId(unitResponse.data[0].unit_id); // 初期値として最初の単位IDをセット
+          setMemoryUnitId(unitResponse.data[0].unit_id);
+          setDiskUnitId(unitResponse.data[0].unit_id);
+          setPartitionUnitId(unitResponse.data[0].unit_id);
         }
         if (osResponse.data.length > 0) {
-          setOsId(osResponse.data[0].os_id); // 初期値として最初のOS IDをセット
+          setOsId(osResponse.data[0].os_id);
         }
         if (userResponse.data.length > 0) {
-          setUserId(userResponse.data[0].user_id); // 初期値として最初のユーザーIDをセット
+          setUserId(userResponse.data[0].user_id);
+        }
+        if (diskResponse.data.length > 0) {
+          setPartitionDiskName(diskResponse.data[0].disk_name);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -60,72 +71,44 @@ const VirtualMachineForm = () => {
     fetchData();
   }, []);
 
-  const handlePartitionChange = (index, field, value) => {
-    const newPartitions = [...partitions];
-    newPartitions[index][field] = value;
-    setPartitions(newPartitions);
-  };
-
   const handleAddPartition = () => {
-    setPartitions([
-      ...partitions,
-      { disk_id: "", size: "", unit_id: "", filesystem: "" },
-    ]);
-  };
-
-  const handleRemovePartition = (index) => {
-    const newPartitions = partitions.filter((_, i) => i !== index);
-    setPartitions(newPartitions);
-  };
-
-  const handleIpAddressChange = (index, field, value) => {
-    const newIpAddresses = [...ipAddresses];
-    newIpAddresses[index][field] = value;
-    setIpAddresses(newIpAddresses);
-  };
-
-  const handleAddIpAddress = () => {
-    setIpAddresses([...ipAddresses, { vlan: "", ipv4: "", ipv6: "" }]);
-  };
-
-  const handleRemoveIpAddress = (index) => {
-    const newIpAddresses = ipAddresses.filter((_, i) => i !== index);
-    setIpAddresses(newIpAddresses);
+    const selectedDisk = disks.find(
+      (disk) => disk.disk_name === partitionDiskName
+    );
+    if (selectedDisk) {
+      setPartitions([
+        ...partitions,
+        {
+          size: partitionSize,
+          unit_id: partitionUnitId,
+          filesystem: partitionFilesystem,
+          disk_id: selectedDisk.disk_id,
+        },
+      ]);
+      setPartitionSize("");
+      setPartitionFilesystem("");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const parsedMemoryUnitId = parseInt(memoryUnitId, 10);
-    const parsedDiskUnitId = parseInt(diskUnitId, 10);
-    const parsedCloudPoolId = parseInt(cloudPoolId, 10);
-    const parsedOsId = parseInt(osId, 10);
-    const parsedUserId = parseInt(userId, 10);
-    if (
-      isNaN(parsedMemoryUnitId) ||
-      isNaN(parsedDiskUnitId) ||
-      isNaN(parsedCloudPoolId) ||
-      isNaN(parsedOsId) ||
-      isNaN(parsedUserId)
-    ) {
-      console.error("Invalid ID");
-      return;
-    }
 
     try {
-      const response = await createVirtualMachine({
+      const vmResponse = await createVirtualMachine({
         name,
-        memory,
-        memory_unit_id: parsedMemoryUnitId,
-        cpu,
-        disk_capacity: diskCapacity,
-        disk_unit_id: parsedDiskUnitId,
-        cloud_pool_id: parsedCloudPoolId,
-        os_id: parsedOsId,
-        user_id: parsedUserId,
+        memory_size: parseFloat(memorySize),
+        memory_unit_id: parseInt(memoryUnitId, 10),
+        disk_size: parseFloat(diskSize),
+        disk_unit_id: parseInt(diskUnitId, 10),
+        cloud_pool_id: parseInt(cloudPoolId, 10),
+        os_id: parseInt(osId, 10),
+        user_id: parseInt(userId, 10),
+        ipv4,
+        ipv6,
+        vlan,
         partitions,
-        ip_addresses: ipAddresses,
       });
-      console.log("Virtual Machine Created:", response.data);
+      console.log("Virtual machine created successfully", vmResponse.data);
     } catch (error) {
       console.error("Error creating virtual machine:", error);
     }
@@ -144,11 +127,11 @@ const VirtualMachineForm = () => {
           />
         </div>
         <div>
-          <label>Memory:</label>
+          <label>Memory Size:</label>
           <input
             type="number"
-            value={memory}
-            onChange={(e) => setMemory(e.target.value)}
+            value={memorySize}
+            onChange={(e) => setMemorySize(e.target.value)}
           />
           <select
             value={memoryUnitId}
@@ -162,19 +145,11 @@ const VirtualMachineForm = () => {
           </select>
         </div>
         <div>
-          <label>CPU:</label>
+          <label>Disk Size:</label>
           <input
             type="number"
-            value={cpu}
-            onChange={(e) => setCpu(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Disk Capacity:</label>
-          <input
-            type="number"
-            value={diskCapacity}
-            onChange={(e) => setDiskCapacity(e.target.value)}
+            value={diskSize}
+            onChange={(e) => setDiskSize(e.target.value)}
           />
           <select
             value={diskUnitId}
@@ -193,12 +168,9 @@ const VirtualMachineForm = () => {
             value={cloudPoolId}
             onChange={(e) => setCloudPoolId(e.target.value)}
           >
-            {cloudPools.map((cloudPool) => (
-              <option
-                key={cloudPool.cloud_pool_id}
-                value={cloudPool.cloud_pool_id}
-              >
-                {cloudPool.name}
+            {cloudPools.map((pool) => (
+              <option key={pool.cloud_pool_id} value={pool.cloud_pool_id}>
+                {pool.name}
               </option>
             ))}
           </select>
@@ -208,7 +180,7 @@ const VirtualMachineForm = () => {
           <select value={osId} onChange={(e) => setOsId(e.target.value)}>
             {operatingSystems.map((os) => (
               <option key={os.os_id} value={os.os_id}>
-                {os.name} {os.version}
+                {os.name}
               </option>
             ))}
           </select>
@@ -218,102 +190,85 @@ const VirtualMachineForm = () => {
           <select value={userId} onChange={(e) => setUserId(e.target.value)}>
             {users.map((user) => (
               <option key={user.user_id} value={user.user_id}>
-                {user.username} ({user.email})
+                {user.name} ({user.email})
               </option>
             ))}
           </select>
         </div>
         <div>
-          <label>Partitions:</label>
-          {partitions.map((partition, index) => (
-            <div key={index}>
-              <input
-                type="number"
-                placeholder="Disk ID"
-                value={partition.disk_id}
-                onChange={(e) =>
-                  handlePartitionChange(index, "disk_id", e.target.value)
-                }
-              />
-              <input
-                type="number"
-                placeholder="Size"
-                value={partition.size}
-                onChange={(e) =>
-                  handlePartitionChange(index, "size", e.target.value)
-                }
-              />
-              <select
-                value={partition.unit_id}
-                onChange={(e) =>
-                  handlePartitionChange(index, "unit_id", e.target.value)
-                }
-              >
-                {units.map((unit) => (
-                  <option key={unit.unit_id} value={unit.unit_id}>
-                    {unit.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Filesystem"
-                value={partition.filesystem}
-                onChange={(e) =>
-                  handlePartitionChange(index, "filesystem", e.target.value)
-                }
-              />
-              <button
-                type="button"
-                onClick={() => handleRemovePartition(index)}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={handleAddPartition}>
-            Add Partition
-          </button>
+          <label>IPv4:</label>
+          <input
+            type="text"
+            value={ipv4}
+            onChange={(e) => setIpv4(e.target.value)}
+          />
         </div>
         <div>
-          <label>IP Addresses:</label>
-          {ipAddresses.map((ip, index) => (
-            <div key={index}>
-              <input
-                type="text"
-                placeholder="VLAN"
-                value={ip.vlan}
-                onChange={(e) =>
-                  handleIpAddressChange(index, "vlan", e.target.value)
-                }
-              />
-              <input
-                type="text"
-                placeholder="IPv4"
-                value={ip.ipv4}
-                onChange={(e) =>
-                  handleIpAddressChange(index, "ipv4", e.target.value)
-                }
-              />
-              <input
-                type="text"
-                placeholder="IPv6"
-                value={ip.ipv6}
-                onChange={(e) =>
-                  handleIpAddressChange(index, "ipv6", e.target.value)
-                }
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveIpAddress(index)}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={handleAddIpAddress}>
-            Add IP Address
-          </button>
+          <label>IPv6:</label>
+          <input
+            type="text"
+            value={ipv6}
+            onChange={(e) => setIpv6(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>VLAN:</label>
+          <input
+            type="text"
+            value={vlan}
+            onChange={(e) => setVlan(e.target.value)}
+          />
+        </div>
+        <div>
+          <h3>Partitions</h3>
+          <div>
+            <label>Partition Size:</label>
+            <input
+              type="number"
+              value={partitionSize}
+              onChange={(e) => setPartitionSize(e.target.value)}
+            />
+            <label>Unit:</label>
+            <select
+              value={partitionUnitId}
+              onChange={(e) => setPartitionUnitId(e.target.value)}
+            >
+              {units.map((unit) => (
+                <option key={unit.unit_id} value={unit.unit_id}>
+                  {unit.name}
+                </option>
+              ))}
+            </select>
+            <label>Filesystem:</label>
+            <input
+              type="text"
+              value={partitionFilesystem}
+              onChange={(e) => setPartitionFilesystem(e.target.value)}
+            />
+            <label>Disk:</label>
+            <select
+              value={partitionDiskName}
+              onChange={(e) => setPartitionDiskName(e.target.value)}
+            >
+              {disks.map((disk) => (
+                <option key={disk.disk_id} value={disk.disk_name}>
+                  {disk.disk_name}
+                </option>
+              ))}
+            </select>
+            <button type="button" onClick={handleAddPartition}>
+              Add Partition
+            </button>
+          </div>
+          <ul>
+            {partitions.map((partition, index) => (
+              <li key={index}>
+                {partition.size}{" "}
+                {units.find((unit) => unit.unit_id === partition.unit_id)?.name}{" "}
+                - {partition.filesystem} (Disk ID: {partition.disk_id})
+              </li>
+            ))}
+          </ul>
         </div>
         <button type="submit">Create</button>
       </form>
