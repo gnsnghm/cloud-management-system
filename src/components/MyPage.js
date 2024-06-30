@@ -1,40 +1,140 @@
-// src/components/MyPage.js
 import React from "react";
-import { Link } from "react-router-dom";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const MyPage = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
-    <div>
-      <h2>My Page</h2>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/cloud-provider">Cloud Provider</Link>
-          </li>
-          <li>
-            <Link to="/data-center">Data Center</Link>
-          </li>
-          <li>
-            <Link to="/cloud-pool">Cloud Pool</Link>
-          </li>
-          <li>
-            <Link to="/virtual-machine">Virtual Machine</Link>
-          </li>
-          <li>
-            <Link to="/user">User</Link>
-          </li>
-          <li>
-            <Link to="/unit">Unit</Link>
-          </li>
-          <li>
-            <Link to="/storage">Storage</Link>
-          </li>
-          <li>
-            <Link to="/os">OS</Link>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <Container className="my-5">
+      <Row>
+        <Col>
+          <h1 className="text-center">My Dashboard</h1>
+        </Col>
+      </Row>
+      <Row className="mt-4">
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Cloud Providers</Card.Title>
+              <Card.Text>Manage your cloud providers here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/cloud-providers")}
+              >
+                Manage Cloud Providers
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Data Centers</Card.Title>
+              <Card.Text>Manage your data centers here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/data-centers")}
+              >
+                Manage Data Centers
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Cloud Pools</Card.Title>
+              <Card.Text>Manage your cloud pools here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/cloud-pools")}
+              >
+                Manage Cloud Pools
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      <Row className="mt-4">
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Virtual Machines</Card.Title>
+              <Card.Text>Manage your virtual machines here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/virtual-machines")}
+              >
+                Manage Virtual Machines
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Users</Card.Title>
+              <Card.Text>Manage users here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/users")}
+              >
+                Manage Users
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Units</Card.Title>
+              <Card.Text>Manage units here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/units")}
+              >
+                Manage Units
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      <Row className="mt-4">
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Storage Devices</Card.Title>
+              <Card.Text>Manage storage devices here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/storage-devices")}
+              >
+                Manage Storage Devices
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={4} className="mb-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>Operating Systems</Card.Title>
+              <Card.Text>Manage operating systems here.</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => handleNavigation("/operating-systems")}
+              >
+                Manage Operating Systems
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

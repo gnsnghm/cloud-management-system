@@ -28,5 +28,6 @@ export const getCloudPools = () => axios.get(`${API_URL}/cloud-pool`);
 export const getUnits = () => axios.get(`${API_URL}/unit`);
 export const getOperatingSystems = () => axios.get(`${API_URL}/os`);
 export const getUsers = () => axios.get(`${API_URL}/users`);
+export const getDisks = () => axios.get(`${API_URL}/disks`);
 export const getStorage = () => axios.get(`${API_URL}/storage`);
 export const getVirtualMachines = () => axios.get(`${API_URL}/virtual-machine`);

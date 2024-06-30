@@ -1,58 +1,72 @@
-// src/components/LoginPage.js
 import React, { useState } from "react";
+import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     try {
       const response = await loginUser({ username, password });
-      console.log("Logged in:", response.data);
-      login(response.data); // ユーザー情報をAuthContextに設定
-      navigate("/mypage"); // ログイン成功後にMyPageにリダイレクト
+      console.log("Login successful:", response.data);
+      navigate("/mypage");
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error(
+        "Login failed:",
+        error.response ? error.response.data : error.message
+      );
+      setError(error.response ? error.response.data.error : error.message);
     }
   };
 
-  const handleRegisterRedirect = () => {
-    navigate("/register");
-  };
-
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <p>
-        Don't have an account?{" "}
-        <button onClick={handleRegisterRedirect}>Register here</button>
-      </p>
-    </div>
+    <Container
+      className="d-flex align-items-center justify-content-center"
+      style={{ minHeight: "100vh" }}
+    >
+      <Row className="w-100">
+        <Col md={{ span: 6, offset: 3 }}>
+          <Card>
+            <Card.Body>
+              <h2 className="text-center mb-4">Login</h2>
+              {error && <div className="alert alert-danger">{error}</div>}
+              <Form onSubmit={handleSubmit}>
+                <Form.Group id="username">
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group id="password" className="mt-3">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+                <Button className="w-100 mt-4" type="submit">
+                  Login
+                </Button>
+              </Form>
+              <div className="w-100 text-center mt-3">
+                Need an account? <a href="/register">Register</a>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
