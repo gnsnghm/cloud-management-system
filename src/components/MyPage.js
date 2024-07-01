@@ -112,7 +112,7 @@ const MyPage = () => {
               <Card.Text>Manage storage devices here.</Card.Text>
               <Button
                 variant="primary"
-                onClick={() => handleNavigation("/storage-devices")}
+                onClick={() => handleNavigation("/storages")}
               >
                 Manage Storage Devices
               </Button>
@@ -124,10 +124,7 @@ const MyPage = () => {
             <Card.Body>
               <Card.Title>Operating Systems</Card.Title>
               <Card.Text>Manage operating systems here.</Card.Text>
-              <Button
-                variant="primary"
-                onClick={() => handleNavigation("/operating-systems")}
-              >
+              <Button variant="primary" onClick={() => handleNavigation("/os")}>
                 Manage Operating Systems
               </Button>
             </Card.Body>
