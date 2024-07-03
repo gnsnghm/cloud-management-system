@@ -1,27 +1,19 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 
-const LoginPage = () => {
+const LoginPage = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     try {
-      const response = await loginUser({ username, password });
-      console.log("Login successful:", response.data);
-      navigate("/mypage");
+      await loginUser({ username, password });
+      onLogin();
     } catch (error) {
-      console.error(
-        "Login failed:",
-        error.response ? error.response.data : error.message
-      );
-      setError(error.response ? error.response.data.error : error.message);
+      setError("Invalid credentials");
     }
   };
 
@@ -59,9 +51,6 @@ const LoginPage = () => {
                   Login
                 </Button>
               </Form>
-              <div className="w-100 text-center mt-3">
-                Need an account? <a href="/register">Register</a>
-              </div>
             </Card.Body>
           </Card>
         </Col>
