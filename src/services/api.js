@@ -36,3 +36,8 @@ export const deleteCloudProvider = (id) =>
   axios.delete(`${API_URL}/cloud-provider/${id}`);
 export const updateCloudProvider = (id, data) =>
   axios.put(`${API_URL}/cloud-provider/${id}`, data);
+
+export const updateDataCenter = (id, data) =>
+  axios.put(`${API_URL}/data-centers/${id}`, data);
+export const deleteDataCenter = (id) =>
+  axios.delete(`${API_URL}/data-centers/${id}`);
