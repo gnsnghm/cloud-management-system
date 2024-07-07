@@ -8,7 +8,6 @@ import {
   Card,
   Table,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import {
   createCloudProvider,
   getCloudProviders,
@@ -22,7 +21,6 @@ const CloudProviderForm = () => {
   const [providers, setProviders] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editProviderId, setEditProviderId] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProviders();
