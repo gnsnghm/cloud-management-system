@@ -32,12 +32,17 @@ export const getDisks = () => axios.get(`${API_URL}/disks`);
 export const getStorage = () => axios.get(`${API_URL}/storage`);
 export const getVirtualMachines = () => axios.get(`${API_URL}/virtual-machine`);
 
-export const deleteCloudProvider = (id) =>
-  axios.delete(`${API_URL}/cloud-provider/${id}`);
 export const updateCloudProvider = (id, data) =>
   axios.put(`${API_URL}/cloud-provider/${id}`, data);
+export const deleteCloudProvider = (id) =>
+  axios.delete(`${API_URL}/cloud-provider/${id}`);
 
 export const updateDataCenter = (id, data) =>
   axios.put(`${API_URL}/data-center/${id}`, data);
 export const deleteDataCenter = (id) =>
   axios.delete(`${API_URL}/data-center/${id}`);
+
+export const updateCloudPool = (id, data) =>
+  axios.put(`${API_URL}/cloud-pool/${id}`, data);
+export const deleteCloudPool = (id) =>
+  axios.delete(`${API_URL}/cloud-pool/${id}`);

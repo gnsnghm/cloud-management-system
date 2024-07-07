@@ -57,7 +57,7 @@ const DataCenterForm = () => {
       const dataCenterData = {
         name,
         location,
-        cloud_provider_id: cloudProviderId,
+        provider_id: cloudProviderId,
       };
       console.log("Sending data:", dataCenterData); // 送信するデータをコンソールに出力
 
