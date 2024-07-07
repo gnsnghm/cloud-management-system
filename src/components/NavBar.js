@@ -30,6 +30,9 @@ const NavBar = ({ onLogout }) => {
             <LinkContainer to="/units">
               <Nav.Link>Units</Nav.Link>
             </LinkContainer>
+            <LinkContainer to="/disks">
+              <Nav.Link>Disks</Nav.Link>
+            </LinkContainer>
             <LinkContainer to="/storage-devices">
               <Nav.Link>Storage Devices</Nav.Link>
             </LinkContainer>

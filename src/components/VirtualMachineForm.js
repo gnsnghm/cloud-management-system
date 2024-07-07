@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from "react";
 import {
+  Form,
+  Button,
+  Container,
+  Row,
+  Col,
+  Card,
+  Table,
+} from "react-bootstrap";
+import {
   getCloudPools,
   getUnits,
   getOperatingSystems,
   getUsers,
   createVirtualMachine,
   getDisks,
+  updateVirtualMachine,
+  deleteVirtualMachine,
+  getVirtualMachines,
+  getDataCenters,
 } from "../services/api";
 
 const VirtualMachineForm = () => {
@@ -20,84 +33,68 @@ const VirtualMachineForm = () => {
   const [ipv4, setIpv4] = useState("");
   const [ipv6, setIpv6] = useState("");
   const [vlan, setVlan] = useState("");
-  const [partitions, setPartitions] = useState([]);
-  const [partitionSize, setPartitionSize] = useState("");
-  const [partitionUnitId, setPartitionUnitId] = useState("");
-  const [partitionFilesystem, setPartitionFilesystem] = useState("");
-  const [partitionDiskName, setPartitionDiskName] = useState("");
+  const [diskId, setDiskId] = useState("");
   const [cloudPools, setCloudPools] = useState([]);
   const [units, setUnits] = useState([]);
   const [operatingSystems, setOperatingSystems] = useState([]);
   const [users, setUsers] = useState([]);
   const [disks, setDisks] = useState([]);
+  const [virtualMachines, setVirtualMachines] = useState([]);
+  const [dataCenters, setDataCenters] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [editVMId, setEditVMId] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const cloudPoolResponse = await getCloudPools();
-        const unitResponse = await getUnits();
-        const osResponse = await getOperatingSystems();
-        const userResponse = await getUsers();
-        const diskResponse = await getDisks();
-
-        setCloudPools(cloudPoolResponse.data);
-        setUnits(unitResponse.data);
-        setOperatingSystems(osResponse.data);
-        setUsers(userResponse.data);
-        setDisks(diskResponse.data);
-
-        if (cloudPoolResponse.data.length > 0) {
-          setCloudPoolId(cloudPoolResponse.data[0].cloud_pool_id);
-        }
-        if (unitResponse.data.length > 0) {
-          setMemoryUnitId(unitResponse.data[0].unit_id);
-          setDiskUnitId(unitResponse.data[0].unit_id);
-          setPartitionUnitId(unitResponse.data[0].unit_id);
-        }
-        if (osResponse.data.length > 0) {
-          setOsId(osResponse.data[0].os_id);
-        }
-        if (userResponse.data.length > 0) {
-          setUserId(userResponse.data[0].user_id);
-        }
-        if (diskResponse.data.length > 0) {
-          setPartitionDiskName(diskResponse.data[0].disk_name);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
     fetchData();
   }, []);
 
-  const handleAddPartition = () => {
-    const selectedDisk = disks.find(
-      (disk) => disk.disk_name === partitionDiskName
-    );
-    if (selectedDisk) {
-      setPartitions([
-        ...partitions,
-        {
-          size: partitionSize,
-          unit_id: partitionUnitId,
-          filesystem: partitionFilesystem,
-          disk_id: selectedDisk.disk_id,
-        },
-      ]);
-      setPartitionSize("");
-      setPartitionFilesystem("");
+  const fetchData = async () => {
+    try {
+      const cloudPoolResponse = await getCloudPools();
+      const unitResponse = await getUnits();
+      const osResponse = await getOperatingSystems();
+      const userResponse = await getUsers();
+      const diskResponse = await getDisks();
+      const vmResponse = await getVirtualMachines();
+      const dataCenterResponse = await getDataCenters();
+
+      setCloudPools(cloudPoolResponse.data);
+      setUnits(unitResponse.data);
+      setOperatingSystems(osResponse.data);
+      setUsers(userResponse.data);
+      setDisks(diskResponse.data);
+      setVirtualMachines(vmResponse.data);
+      setDataCenters(dataCenterResponse.data);
+
+      if (cloudPoolResponse.data.length > 0) {
+        setCloudPoolId(cloudPoolResponse.data[0].cloud_pool_id);
+      }
+      if (unitResponse.data.length > 0) {
+        setMemoryUnitId(unitResponse.data[0].unit_id);
+        setDiskUnitId(unitResponse.data[0].unit_id);
+      }
+      if (osResponse.data.length > 0) {
+        setOsId(osResponse.data[0].os_id);
+      }
+      if (userResponse.data.length > 0) {
+        setUserId(userResponse.data[0].user_id);
+      }
+      if (diskResponse.data.length > 0) {
+        setDiskId(diskResponse.data[0].disk_id);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const vmResponse = await createVirtualMachine({
+      const vmData = {
         name,
         memory_size: parseFloat(memorySize),
         memory_unit_id: parseInt(memoryUnitId, 10),
+        disk_id: parseInt(diskId, 10),
         disk_size: parseFloat(diskSize),
         disk_unit_id: parseInt(diskUnitId, 10),
         cloud_pool_id: parseInt(cloudPoolId, 10),
@@ -106,173 +103,343 @@ const VirtualMachineForm = () => {
         ipv4,
         ipv6,
         vlan,
-        partitions,
-      });
-      console.log("Virtual machine created successfully", vmResponse.data);
+      };
+
+      if (editMode) {
+        await updateVirtualMachine(editVMId, vmData);
+        setEditMode(false);
+        setEditVMId(null);
+      } else {
+        await createVirtualMachine(vmData);
+      }
+
+      setName("");
+      setMemorySize("");
+      setMemoryUnitId("");
+      setDiskSize("");
+      setDiskUnitId("");
+      setCloudPoolId("");
+      setOsId("");
+      setUserId("");
+      setIpv4("");
+      setIpv6("");
+      setVlan("");
+      setDiskId("");
+      fetchData();
     } catch (error) {
-      console.error("Error creating virtual machine:", error);
+      console.error("Error creating/updating virtual machine:", error);
+    }
+  };
+
+  const handleEdit = (vm) => {
+    setName(vm.name);
+    setMemorySize(vm.memory_size);
+    setMemoryUnitId(vm.memory_unit_id);
+    setDiskSize(vm.disk_size);
+    setDiskUnitId(vm.disk_unit_id);
+    setCloudPoolId(vm.cloud_pool_id);
+    setOsId(vm.os_id);
+    setUserId(vm.user_id);
+    setIpv4(vm.ipv4);
+    setIpv6(vm.ipv6);
+    setVlan(vm.vlan);
+    setDiskId(vm.disk_id);
+    setEditMode(true);
+    setEditVMId(vm.vm_id);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteVirtualMachine(id);
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting virtual machine:", error);
     }
   };
 
   return (
-    <div>
-      <h2>Create Virtual Machine</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Memory Size:</label>
-          <input
-            type="number"
-            value={memorySize}
-            onChange={(e) => setMemorySize(e.target.value)}
-          />
-          <select
-            value={memoryUnitId}
-            onChange={(e) => setMemoryUnitId(e.target.value)}
-          >
-            {units.map((unit) => (
-              <option key={unit.unit_id} value={unit.unit_id}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Disk Size:</label>
-          <input
-            type="number"
-            value={diskSize}
-            onChange={(e) => setDiskSize(e.target.value)}
-          />
-          <select
-            value={diskUnitId}
-            onChange={(e) => setDiskUnitId(e.target.value)}
-          >
-            {units.map((unit) => (
-              <option key={unit.unit_id} value={unit.unit_id}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Cloud Pool:</label>
-          <select
-            value={cloudPoolId}
-            onChange={(e) => setCloudPoolId(e.target.value)}
-          >
-            {cloudPools.map((pool) => (
-              <option key={pool.cloud_pool_id} value={pool.cloud_pool_id}>
-                {pool.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Operating System:</label>
-          <select value={osId} onChange={(e) => setOsId(e.target.value)}>
-            {operatingSystems.map((os) => (
-              <option key={os.os_id} value={os.os_id}>
-                {os.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>User:</label>
-          <select value={userId} onChange={(e) => setUserId(e.target.value)}>
-            {users.map((user) => (
-              <option key={user.user_id} value={user.user_id}>
-                {user.name} ({user.email})
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>IPv4:</label>
-          <input
-            type="text"
-            value={ipv4}
-            onChange={(e) => setIpv4(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>IPv6:</label>
-          <input
-            type="text"
-            value={ipv6}
-            onChange={(e) => setIpv6(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>VLAN:</label>
-          <input
-            type="text"
-            value={vlan}
-            onChange={(e) => setVlan(e.target.value)}
-          />
-        </div>
-        <div>
-          <h3>Partitions</h3>
-          <div>
-            <label>Partition Size:</label>
-            <input
-              type="number"
-              value={partitionSize}
-              onChange={(e) => setPartitionSize(e.target.value)}
-            />
-            <label>Unit:</label>
-            <select
-              value={partitionUnitId}
-              onChange={(e) => setPartitionUnitId(e.target.value)}
-            >
-              {units.map((unit) => (
-                <option key={unit.unit_id} value={unit.unit_id}>
-                  {unit.name}
-                </option>
+    <Container className="my-5">
+      <Row>
+        <Col>
+          <Card>
+            <Card.Body>
+              <h2 className="text-center mb-4">
+                {editMode ? "仮想マシンを編集" : "仮想マシンを作成"}
+              </h2>
+              <Form onSubmit={handleSubmit}>
+                <Form.Group id="name">
+                  <Form.Label>名前</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group id="memorySize" className="mt-3">
+                  <Form.Label>メモリサイズ</Form.Label>
+                  <Row>
+                    <Col>
+                      <Form.Control
+                        type="number"
+                        value={memorySize}
+                        onChange={(e) => setMemorySize(e.target.value)}
+                        required
+                      />
+                    </Col>
+                    <Col>
+                      <Form.Control
+                        as="select"
+                        value={memoryUnitId}
+                        onChange={(e) => setMemoryUnitId(e.target.value)}
+                        required
+                      >
+                        <option value="">単位を選択</option>
+                        {units.map((unit) => (
+                          <option key={unit.unit_id} value={unit.unit_id}>
+                            {unit.name}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    </Col>
+                  </Row>
+                </Form.Group>
+                <Form.Group id="disk" className="mt-3">
+                  <Form.Label>ディスク</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={diskId}
+                    onChange={(e) => setDiskId(e.target.value)}
+                    required
+                  >
+                    <option value="">ディスクを選択</option>
+                    {disks.map((disk) => (
+                      <option key={disk.disk_id} value={disk.disk_id}>
+                        {disk.disk_name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group id="diskSize" className="mt-3">
+                  <Form.Label>ディスクサイズ</Form.Label>
+                  <Row>
+                    <Col>
+                      <Form.Control
+                        type="number"
+                        value={diskSize}
+                        onChange={(e) => setDiskSize(e.target.value)}
+                        required
+                      />
+                    </Col>
+                    <Col>
+                      <Form.Control
+                        as="select"
+                        value={diskUnitId}
+                        onChange={(e) => setDiskUnitId(e.target.value)}
+                        required
+                      >
+                        <option value="">単位を選択</option>
+                        {units.map((unit) => (
+                          <option key={unit.unit_id} value={unit.unit_id}>
+                            {unit.name}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    </Col>
+                  </Row>
+                </Form.Group>
+                <Form.Group id="cloudPool" className="mt-3">
+                  <Form.Label>クラウドプール</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={cloudPoolId}
+                    onChange={(e) => setCloudPoolId(e.target.value)}
+                    required
+                  >
+                    <option value="">クラウドプールを選択</option>
+                    {cloudPools.map((pool) => {
+                      const dataCenterName = dataCenters.find(
+                        (dc) => dc.data_center_id === pool.data_center_id
+                      )?.name;
+                      return (
+                        <option
+                          key={pool.cloud_pool_id}
+                          value={pool.cloud_pool_id}
+                        >
+                          {pool.name} ({dataCenterName})
+                        </option>
+                      );
+                    })}
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group id="os" className="mt-3">
+                  <Form.Label>OS</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={osId}
+                    onChange={(e) => setOsId(e.target.value)}
+                    required
+                  >
+                    <option value="">OSを選択</option>
+                    {operatingSystems.map((os) => (
+                      <option key={os.os_id} value={os.os_id}>
+                        {os.name}({os.version})
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group id="user" className="mt-3">
+                  <Form.Label>ユーザー</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
+                    required
+                  >
+                    <option value="">ユーザーを選択</option>
+                    {users.map((user) => (
+                      <option key={user.user_id} value={user.user_id}>
+                        {user.username} ({user.email})
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group id="ipv4" className="mt-3">
+                  <Form.Label>IPv4</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={ipv4}
+                    onChange={(e) => setIpv4(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group id="ipv6" className="mt-3">
+                  <Form.Label>IPv6</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={ipv6}
+                    onChange={(e) => setIpv6(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group id="vlan" className="mt-3">
+                  <Form.Label>VLAN</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vlan}
+                    onChange={(e) => setVlan(e.target.value)}
+                  />
+                </Form.Group>
+                <Button className="w-100 mt-4" type="submit">
+                  {editMode ? "更新" : "作成"}
+                </Button>
+                {editMode && (
+                  <Button
+                    className="w-100 mt-2"
+                    variant="secondary"
+                    onClick={() => {
+                      setEditMode(false);
+                      setEditVMId(null);
+                      setName("");
+                      setMemorySize("");
+                      setMemoryUnitId("");
+                      setDiskSize("");
+                      setDiskUnitId("");
+                      setCloudPoolId("");
+                      setOsId("");
+                      setUserId("");
+                      setIpv4("");
+                      setIpv6("");
+                      setVlan("");
+                      setDiskId("");
+                    }}
+                  >
+                    キャンセル
+                  </Button>
+                )}
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      <Row className="mt-4">
+        <Col>
+          <h2 className="text-center mb-4">仮想マシン一覧</h2>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>メモリ</th>
+                <th>ディスク</th>
+                <th>クラウドプール</th>
+                <th>OS</th>
+                <th>ユーザー</th>
+                <th>IPv4</th>
+                <th>IPv6</th>
+                <th>VLAN</th>
+                <th>アクション</th>
+              </tr>
+            </thead>
+            <tbody>
+              {virtualMachines.map((vm) => (
+                <tr key={vm.vm_id}>
+                  <td>{vm.name}</td>
+                  <td>
+                    {vm.memory_size}{" "}
+                    {
+                      units.find((unit) => unit.unit_id === vm.memory_unit_id)
+                        ?.name
+                    }
+                  </td>
+                  <td>
+                    {vm.disk_size}{" "}
+                    {
+                      units.find((unit) => unit.unit_id === vm.disk_unit_id)
+                        ?.name
+                    }{" "}
+                    (
+                    {
+                      disks.find((disk) => disk.disk_id === vm.disk_id)
+                        ?.disk_name
+                    }
+                    )
+                  </td>
+                  <td>
+                    {
+                      cloudPools.find(
+                        (pool) => pool.cloud_pool_id === vm.cloud_pool_id
+                      )?.name
+                    }
+                  </td>
+                  <td>
+                    {operatingSystems.find((os) => os.os_id === vm.os_id)?.name}
+                  </td>
+                  <td>
+                    {users.find((user) => user.user_id === vm.user_id)?.name}
+                  </td>
+                  <td>{vm.ipv4}</td>
+                  <td>{vm.ipv6}</td>
+                  <td>{vm.vlan}</td>
+                  <td>
+                    <Button
+                      variant="warning"
+                      onClick={() => handleEdit(vm)}
+                      className="me-2"
+                    >
+                      編集
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => handleDelete(vm.vm_id)}
+                    >
+                      削除
+                    </Button>
+                  </td>
+                </tr>
               ))}
-            </select>
-            <label>Filesystem:</label>
-            <input
-              type="text"
-              value={partitionFilesystem}
-              onChange={(e) => setPartitionFilesystem(e.target.value)}
-            />
-            <label>Disk:</label>
-            <select
-              value={partitionDiskName}
-              onChange={(e) => setPartitionDiskName(e.target.value)}
-            >
-              {disks.map((disk) => (
-                <option key={disk.disk_id} value={disk.disk_name}>
-                  {disk.disk_name}
-                </option>
-              ))}
-            </select>
-            <button type="button" onClick={handleAddPartition}>
-              Add Partition
-            </button>
-          </div>
-          <ul>
-            {partitions.map((partition, index) => (
-              <li key={index}>
-                {partition.size}{" "}
-                {units.find((unit) => unit.unit_id === partition.unit_id)?.name}{" "}
-                - {partition.filesystem} (Disk ID: {partition.disk_id})
-              </li>
-            ))}
-          </ul>
-        </div>
-        <button type="submit">Create</button>
-      </form>
-    </div>
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

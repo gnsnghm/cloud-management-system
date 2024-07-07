@@ -16,6 +16,7 @@ import CloudPoolForm from "./components/CloudPoolForm";
 import VirtualMachineForm from "./components/VirtualMachineForm";
 import UserForm from "./components/UserForm";
 import UnitForm from "./components/UnitForm";
+import DiskForm from "./components/DiskForm";
 import StorageForm from "./components/StorageForm";
 import OSForm from "./components/OSForm";
 import MyPage from "./components/MyPage";
@@ -73,6 +74,10 @@ const App = () => {
         <Route
           path="/units"
           element={isAuthenticated ? <UnitForm /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/disks"
+          element={isAuthenticated ? <DiskForm /> : <Navigate to="/" />}
         />
         <Route
           path="/storage-devices"
