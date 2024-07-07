@@ -188,7 +188,7 @@ const DataCenterForm = () => {
                   <td>
                     {cloudProviders.find(
                       (provider) =>
-                        provider.provider_id === dataCenter.cloud_provider_id
+                        provider.provider_id === dataCenter.provider_id
                     )?.name || "Unknown"}
                   </td>
                   <td>
