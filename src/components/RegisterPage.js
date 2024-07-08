@@ -62,7 +62,7 @@ const RegisterPage = () => {
                 </Button>
               </Form>
               <div className="w-100 text-center mt-3">
-                Already have an account? <a href="/login">Login</a>
+                Already have an account? <a href="/">Login</a>
               </div>
             </Card.Body>
           </Card>

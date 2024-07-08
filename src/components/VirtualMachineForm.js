@@ -413,7 +413,10 @@ const VirtualMachineForm = () => {
                     {operatingSystems.find((os) => os.os_id === vm.os_id)?.name}
                   </td>
                   <td>
-                    {users.find((user) => user.user_id === vm.user_id)?.name}
+                    {
+                      users.find((user) => user.user_id === vm.user_id)
+                        ?.username
+                    }
                   </td>
                   <td>{vm.ipv4}</td>
                   <td>{vm.ipv6}</td>

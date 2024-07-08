@@ -1,5 +1,7 @@
+// src/components/LoginPage.js
 import React, { useState } from "react";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import { loginUser } from "../services/api";
 
 const LoginPage = ({ onLogin }) => {
@@ -13,6 +15,7 @@ const LoginPage = ({ onLogin }) => {
       await loginUser({ username, password });
       onLogin();
     } catch (error) {
+      console.log(error);
       setError("Invalid credentials");
     }
   };
@@ -51,6 +54,10 @@ const LoginPage = ({ onLogin }) => {
                   Login
                 </Button>
               </Form>
+              <div className="text-center mt-3">
+                <span>Don't have an account? </span>
+                <Link to="/register">Register</Link>
+              </div>
             </Card.Body>
           </Card>
         </Col>
