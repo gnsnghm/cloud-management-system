@@ -15,6 +15,7 @@ import {
   deleteStorage,
   getCloudPools,
   getUnits,
+  getDataCenters, // 追加
 } from "../services/api";
 
 const StorageForm = () => {
@@ -25,6 +26,7 @@ const StorageForm = () => {
   const [storages, setStorages] = useState([]);
   const [cloudPools, setCloudPools] = useState([]);
   const [units, setUnits] = useState([]);
+  const [dataCenters, setDataCenters] = useState([]); // 追加
   const [editMode, setEditMode] = useState(false);
   const [editStorageId, setEditStorageId] = useState(null);
 
@@ -32,6 +34,7 @@ const StorageForm = () => {
     fetchStorages();
     fetchCloudPools();
     fetchUnits();
+    fetchDataCenters(); // 追加
   }, []);
 
   const fetchStorages = async () => {
@@ -58,6 +61,16 @@ const StorageForm = () => {
       setUnits(response.data);
     } catch (error) {
       console.error("Error fetching units:", error);
+    }
+  };
+
+  const fetchDataCenters = async () => {
+    // 追加
+    try {
+      const response = await getDataCenters();
+      setDataCenters(response.data);
+    } catch (error) {
+      console.error("Error fetching data centers:", error);
     }
   };
 
@@ -94,7 +107,7 @@ const StorageForm = () => {
     setTotalCapacityUnitId(storage.total_capacity_unit_id);
     setCloudPoolId(storage.cloud_pool_id);
     setEditMode(true);
-    setEditStorageId(storage.storage_id);
+    setEditStorageId(storage.storage_device_id);
   };
 
   const handleDelete = async (id) => {
@@ -104,6 +117,14 @@ const StorageForm = () => {
     } catch (error) {
       console.error("Error deleting storage:", error);
     }
+  };
+
+  const getCloudPoolWithDataCenterName = (cloudPoolId) => {
+    const pool = cloudPools.find((pool) => pool.cloud_pool_id === cloudPoolId);
+    const dataCenter = dataCenters.find(
+      (dc) => dc.data_center_id === pool?.data_center_id
+    );
+    return pool ? `${pool.name} (${dataCenter?.name || "Unknown"})` : "Unknown";
   };
 
   return (
@@ -167,7 +188,7 @@ const StorageForm = () => {
                         key={pool.cloud_pool_id}
                         value={pool.cloud_pool_id}
                       >
-                        {pool.name}
+                        {getCloudPoolWithDataCenterName(pool.cloud_pool_id)}
                       </option>
                     ))}
                   </Form.Control>
@@ -210,7 +231,7 @@ const StorageForm = () => {
             </thead>
             <tbody>
               {storages.map((storage) => (
-                <tr key={storage.storage_id}>
+                <tr key={storage.storage_device_id}>
                   <td>{storage.name}</td>
                   <td>
                     {storage.total_capacity}{" "}
@@ -219,9 +240,7 @@ const StorageForm = () => {
                     )?.name || ""}
                   </td>
                   <td>
-                    {cloudPools.find(
-                      (pool) => pool.cloud_pool_id === storage.cloud_pool_id
-                    )?.name || "Unknown"}
+                    {getCloudPoolWithDataCenterName(storage.cloud_pool_id)}
                   </td>
                   <td>
                     <Button
@@ -233,7 +252,7 @@ const StorageForm = () => {
                     </Button>
                     <Button
                       variant="danger"
-                      onClick={() => handleDelete(storage.storage_id)}
+                      onClick={() => handleDelete(storage.storage_device_id)}
                     >
                       Delete
                     </Button>

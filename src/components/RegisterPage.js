@@ -13,7 +13,7 @@ const RegisterPage = () => {
     e.preventDefault();
     try {
       await registerUser({ username, email, password });
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Registration failed:", error);
     }
@@ -31,7 +31,7 @@ const RegisterPage = () => {
               <h2 className="text-center mb-4">Register</h2>
               <Form onSubmit={handleSubmit}>
                 <Form.Group id="username">
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>Username</Form.Label>
                   <Form.Control
                     type="text"
                     value={username}

@@ -15,6 +15,8 @@ import {
   deleteDisk,
   getStorage,
   getUnits,
+  getCloudPools, // 追加
+  getDataCenters, // 追加
 } from "../services/api";
 
 const DiskForm = () => {
@@ -25,6 +27,8 @@ const DiskForm = () => {
   const [disks, setDisks] = useState([]);
   const [storages, setStorages] = useState([]);
   const [units, setUnits] = useState([]);
+  const [cloudPools, setCloudPools] = useState([]); // 追加
+  const [dataCenters, setDataCenters] = useState([]); // 追加
   const [editMode, setEditMode] = useState(false);
   const [editDiskId, setEditDiskId] = useState(null);
 
@@ -37,9 +41,14 @@ const DiskForm = () => {
       const diskResponse = await getDisks();
       const storageResponse = await getStorage();
       const unitResponse = await getUnits();
+      const cloudPoolResponse = await getCloudPools(); // 追加
+      const dataCenterResponse = await getDataCenters(); // 追加
+
       setDisks(diskResponse.data);
       setStorages(storageResponse.data);
       setUnits(unitResponse.data);
+      setCloudPools(cloudPoolResponse.data); // 追加
+      setDataCenters(dataCenterResponse.data); // 追加
 
       if (storageResponse.data.length > 0) {
         setStorageId(storageResponse.data[0].storage_device_id);
@@ -96,6 +105,33 @@ const DiskForm = () => {
     } catch (error) {
       console.error("Error deleting disk:", error);
     }
+  };
+
+  const getStorageDisplayName = (storage) => {
+    const cloudPool = cloudPools.find(
+      (pool) => pool.cloud_pool_id === storage.cloud_pool_id
+    );
+    const dataCenter = dataCenters.find(
+      (dc) => dc.data_center_id === cloudPool?.data_center_id
+    );
+    return `${storage.name}-${cloudPool?.name || "不明"}(${
+      dataCenter?.name || "不明"
+    })`;
+  };
+
+  const getDiskDisplayName = (disk) => {
+    const storage = storages.find(
+      (s) => s.storage_device_id === disk.storage_device_id
+    );
+    const cloudPool = cloudPools.find(
+      (pool) => pool.cloud_pool_id === storage?.cloud_pool_id
+    );
+    const dataCenter = dataCenters.find(
+      (dc) => dc.data_center_id === cloudPool?.data_center_id
+    );
+    return `${disk.disk_name}-${cloudPool?.name || "不明"}(${
+      dataCenter?.name || "不明"
+    })`;
   };
 
   return (
@@ -159,7 +195,7 @@ const DiskForm = () => {
                         key={storage.storage_device_id}
                         value={storage.storage_device_id}
                       >
-                        {storage.name}
+                        {getStorageDisplayName(storage)}
                       </option>
                     ))}
                   </Form.Control>
@@ -208,14 +244,7 @@ const DiskForm = () => {
                     {disk.size}{" "}
                     {units.find((unit) => unit.unit_id === disk.unit_id)?.name}
                   </td>
-                  <td>
-                    {
-                      storages.find(
-                        (storage) =>
-                          storage.storage_device_id === disk.storage_device_id
-                      )?.name
-                    }
-                  </td>
+                  <td>{getDiskDisplayName(disk)}</td>
                   <td>
                     <Button
                       variant="warning"
