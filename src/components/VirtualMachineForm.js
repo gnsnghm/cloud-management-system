@@ -102,7 +102,7 @@ const VirtualMachineForm = () => {
         user_id: parseInt(userId, 10),
         ipv4,
         ipv6,
-        vlan,
+        vlan: vlan === "" ? null : vlan,
       };
 
       if (editMode) {
@@ -323,7 +323,7 @@ const VirtualMachineForm = () => {
                 <Form.Group id="vlan" className="mt-3">
                   <Form.Label>VLAN</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="number"
                     value={vlan}
                     onChange={(e) => setVlan(e.target.value)}
                   />

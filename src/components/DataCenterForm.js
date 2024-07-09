@@ -11,43 +11,36 @@ import {
 import {
   createDataCenter,
   getDataCenters,
-  deleteDataCenter,
   updateDataCenter,
+  deleteDataCenter,
   getCloudProviders,
 } from "../services/api";
 
 const DataCenterForm = () => {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const [cloudProviderId, setCloudProviderId] = useState("");
+  const [providerId, setProviderId] = useState("");
   const [dataCenters, setDataCenters] = useState([]);
   const [cloudProviders, setCloudProviders] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editDataCenterId, setEditDataCenterId] = useState(null);
 
   useEffect(() => {
-    fetchDataCenters();
-    fetchCloudProviders();
+    fetchData();
   }, []);
 
-  const fetchDataCenters = async () => {
+  const fetchData = async () => {
     try {
-      const response = await getDataCenters();
-      setDataCenters(response.data);
-    } catch (error) {
-      console.error("Error fetching data centers:", error);
-    }
-  };
+      const dataCenterResponse = await getDataCenters();
+      const cloudProviderResponse = await getCloudProviders();
+      setDataCenters(dataCenterResponse.data);
+      setCloudProviders(cloudProviderResponse.data);
 
-  const fetchCloudProviders = async () => {
-    try {
-      const response = await getCloudProviders();
-      setCloudProviders(response.data);
-      if (response.data.length > 0) {
-        setCloudProviderId(response.data[0].provider_id);
+      if (cloudProviderResponse.data.length > 0) {
+        setProviderId(cloudProviderResponse.data[0].provider_id);
       }
     } catch (error) {
-      console.error("Error fetching cloud providers:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -57,9 +50,8 @@ const DataCenterForm = () => {
       const dataCenterData = {
         name,
         location,
-        provider_id: cloudProviderId,
+        provider_id: parseInt(providerId, 10),
       };
-      console.log("Sending data:", dataCenterData); // 送信するデータをコンソールに出力
 
       if (editMode) {
         await updateDataCenter(editDataCenterId, dataCenterData);
@@ -68,10 +60,11 @@ const DataCenterForm = () => {
       } else {
         await createDataCenter(dataCenterData);
       }
+
       setName("");
       setLocation("");
-      setCloudProviderId("");
-      fetchDataCenters();
+      setProviderId("");
+      fetchData();
     } catch (error) {
       console.error("Error creating/updating data center:", error);
     }
@@ -80,7 +73,7 @@ const DataCenterForm = () => {
   const handleEdit = (dataCenter) => {
     setName(dataCenter.name);
     setLocation(dataCenter.location);
-    setCloudProviderId(dataCenter.cloud_provider_id);
+    setProviderId(dataCenter.provider_id);
     setEditMode(true);
     setEditDataCenterId(dataCenter.data_center_id);
   };
@@ -88,7 +81,7 @@ const DataCenterForm = () => {
   const handleDelete = async (id) => {
     try {
       await deleteDataCenter(id);
-      fetchDataCenters();
+      fetchData();
     } catch (error) {
       console.error("Error deleting data center:", error);
     }
@@ -122,12 +115,12 @@ const DataCenterForm = () => {
                     required
                   />
                 </Form.Group>
-                <Form.Group id="cloudProvider" className="mt-3">
+                <Form.Group id="provider" className="mt-3">
                   <Form.Label>Cloud Provider</Form.Label>
                   <Form.Control
                     as="select"
-                    value={cloudProviderId}
-                    onChange={(e) => setCloudProviderId(e.target.value)}
+                    value={providerId}
+                    onChange={(e) => setProviderId(e.target.value)}
                     required
                   >
                     <option value="">Select Cloud Provider</option>
@@ -153,11 +146,7 @@ const DataCenterForm = () => {
                       setEditDataCenterId(null);
                       setName("");
                       setLocation("");
-                      setCloudProviderId(
-                        cloudProviders.length > 0
-                          ? cloudProviders[0].provider_id
-                          : ""
-                      );
+                      setProviderId("");
                     }}
                   >
                     Cancel
