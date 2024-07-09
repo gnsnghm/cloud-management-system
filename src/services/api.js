@@ -1,75 +1,85 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api";
+// 環境変数からAPIキーを取得
+const API_KEY = process.env.REACT_APP_API_KEY || "your-api-key-here"; // 必要に応じてデフォルト値を設定
 
-export const registerUser = (userData) =>
-  axios.post(`${API_URL}/register`, userData);
-export const loginUser = (userData) => axios.post(`${API_URL}/login`, userData);
+// Axiosインスタンスの作成
+const apiClient = axios.create({
+  baseURL: "http://" + process.env.REACT_APP_URL + "/api", // サーバーのベースURL
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": API_KEY, // APIキーをヘッダーに追加
+  },
+});
 
+// ユーザー登録とログイン
+export const registerUser = (userData) => apiClient.post("/register", userData);
+export const loginUser = (userData) => apiClient.post("/login", userData);
+
+// クラウドプロバイダー関連
 export const createCloudProvider = (providerData) =>
-  axios.post(`${API_URL}/cloud-provider`, providerData);
-export const createDataCenter = (dataCenterData) =>
-  axios.post(`${API_URL}/data-center`, dataCenterData);
-export const createCloudPool = (cloudPoolData) =>
-  axios.post(`${API_URL}/cloud-pool`, cloudPoolData);
-export const createVirtualMachine = (vmData) =>
-  axios.post(`${API_URL}/virtual-machines`, vmData);
-export const createUser = (userData) =>
-  axios.post(`${API_URL}/users`, userData);
-export const createUnit = (unitData) =>
-  axios.post(`${API_URL}/units`, unitData);
-export const createStorage = (storageData) =>
-  axios.post(`${API_URL}/storage`, storageData);
-export const createOS = (osData) => axios.post(`${API_URL}/os`, osData);
-export const createDisk = (diskData) =>
-  axios.post(`${API_URL}/disks`, diskData);
-
-export const getCloudProviders = () => axios.get(`${API_URL}/cloud-provider`);
-export const getDataCenters = () => axios.get(`${API_URL}/data-center`);
-export const getCloudPools = () => axios.get(`${API_URL}/cloud-pool`);
-export const getUnits = () => axios.get(`${API_URL}/units`);
-export const getOperatingSystems = () => axios.get(`${API_URL}/os`);
-export const getUsers = () => axios.get(`${API_URL}/users`);
-export const getDisks = () => axios.get(`${API_URL}/disks`);
-export const getStorage = () => axios.get(`${API_URL}/storage`);
-export const getVirtualMachines = () =>
-  axios.get(`${API_URL}/virtual-machines`);
-
+  apiClient.post("/cloud-provider", providerData);
+export const getCloudProviders = () => apiClient.get("/cloud-provider");
 export const updateCloudProvider = (id, data) =>
-  axios.put(`${API_URL}/cloud-provider/${id}`, data);
+  apiClient.put(`/cloud-provider/${id}`, data);
 export const deleteCloudProvider = (id) =>
-  axios.delete(`${API_URL}/cloud-provider/${id}`);
+  apiClient.delete(`/cloud-provider/${id}`);
 
+// データセンター関連
+export const createDataCenter = (dataCenterData) =>
+  apiClient.post("/data-center", dataCenterData);
+export const getDataCenters = () => apiClient.get("/data-center");
 export const updateDataCenter = (id, data) =>
-  axios.put(`${API_URL}/data-center/${id}`, data);
-export const deleteDataCenter = (id) =>
-  axios.delete(`${API_URL}/data-center/${id}`);
+  apiClient.put(`/data-center/${id}`, data);
+export const deleteDataCenter = (id) => apiClient.delete(`/data-center/${id}`);
 
+// クラウドプール関連
+export const createCloudPool = (cloudPoolData) =>
+  apiClient.post("/cloud-pool", cloudPoolData);
+export const getCloudPools = () => apiClient.get("/cloud-pool");
 export const updateCloudPool = (id, data) =>
-  axios.put(`${API_URL}/cloud-pool/${id}`, data);
-export const deleteCloudPool = (id) =>
-  axios.delete(`${API_URL}/cloud-pool/${id}`);
+  apiClient.put(`/cloud-pool/${id}`, data);
+export const deleteCloudPool = (id) => apiClient.delete(`/cloud-pool/${id}`);
 
-export const deleteUser = (id) => axios.delete(`${API_URL}/users/${id}`);
-export const updateUser = (id, userData) =>
-  axios.put(`${API_URL}/users/${id}`, userData);
-
-export const deleteUnit = (id) => axios.delete(`${API_URL}/units/${id}`);
-export const updateUnit = (id, userData) =>
-  axios.put(`${API_URL}/units/${id}`, userData);
-
-export const updateOS = (id, data) => axios.put(`${API_URL}/os/${id}`, data);
-export const deleteOS = (id) => axios.delete(`${API_URL}/os/${id}`);
-
-export const updateStorage = (id, data) =>
-  axios.put(`${API_URL}/storage/${id}`, data);
-export const deleteStorage = (id) => axios.delete(`${API_URL}/storage/${id}`);
-
+// 仮想マシン関連
+export const createVirtualMachine = (vmData) =>
+  apiClient.post("/virtual-machines", vmData);
+export const getVirtualMachines = () => apiClient.get("/virtual-machines");
 export const updateVirtualMachine = (id, data) =>
-  axios.put(`${API_URL}/virtual-machines/${id}`, data);
+  apiClient.put(`/virtual-machines/${id}`, data);
 export const deleteVirtualMachine = (id) =>
-  axios.delete(`${API_URL}/virtual-machines/${id}`);
+  apiClient.delete(`/virtual-machines/${id}`);
 
-export const updateDisk = (id, data) =>
-  axios.put(`${API_URL}/disks/${id}`, data);
-export const deleteDisk = (id) => axios.delete(`${API_URL}/disks/${id}`);
+// ユーザー関連
+export const createUser = (userData) => apiClient.post("/users", userData);
+export const getUsers = () => apiClient.get("/users");
+export const updateUser = (id, userData) =>
+  apiClient.put(`/users/${id}`, userData);
+export const deleteUser = (id) => apiClient.delete(`/users/${id}`);
+
+// 単位関連
+export const createUnit = (unitData) => apiClient.post("/units", unitData);
+export const getUnits = () => apiClient.get("/units");
+export const updateUnit = (id, userData) =>
+  apiClient.put(`/units/${id}`, userData);
+export const deleteUnit = (id) => apiClient.delete(`/units/${id}`);
+
+// ストレージ関連
+export const createStorage = (storageData) =>
+  apiClient.post("/storage", storageData);
+export const getStorage = () => apiClient.get("/storage");
+export const updateStorage = (id, data) =>
+  apiClient.put(`/storage/${id}`, data);
+export const deleteStorage = (id) => apiClient.delete(`/storage/${id}`);
+
+// OS関連
+export const createOS = (osData) => apiClient.post("/os", osData);
+export const getOperatingSystems = () => apiClient.get("/os");
+export const updateOS = (id, data) => apiClient.put(`/os/${id}`, data);
+export const deleteOS = (id) => apiClient.delete(`/os/${id}`);
+
+// ディスク関連
+export const createDisk = (diskData) => apiClient.post("/disks", diskData);
+export const getDisks = () => apiClient.get("/disks");
+export const updateDisk = (id, data) => apiClient.put(`/disks/${id}`, data);
+export const deleteDisk = (id) => apiClient.delete(`/disks/${id}`);

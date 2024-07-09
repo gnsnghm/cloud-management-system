@@ -13,7 +13,13 @@ const MyPage = () => {
     <Container className="my-5">
       <Row>
         <Col>
-          <h1 className="text-center">My Dashboard</h1>
+          <h1 className="text-center">
+            <img
+              src="/images/logo_yoko.png"
+              height="150"
+              alt="Cloud Management Logo"
+            />
+          </h1>
         </Col>
       </Row>
       <Row className="mt-4">
