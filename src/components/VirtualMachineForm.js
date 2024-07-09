@@ -164,11 +164,11 @@ const VirtualMachineForm = () => {
           <Card>
             <Card.Body>
               <h2 className="text-center mb-4">
-                {editMode ? "仮想マシンを編集" : "仮想マシンを作成"}
+                {editMode ? "Edit Virtual Machine" : "Create Virtual Machine"}
               </h2>
               <Form onSubmit={handleSubmit}>
                 <Form.Group id="name">
-                  <Form.Label>名前</Form.Label>
+                  <Form.Label>Name</Form.Label>
                   <Form.Control
                     type="text"
                     value={name}
@@ -177,7 +177,7 @@ const VirtualMachineForm = () => {
                   />
                 </Form.Group>
                 <Form.Group id="memorySize" className="mt-3">
-                  <Form.Label>メモリサイズ</Form.Label>
+                  <Form.Label>Memory Size</Form.Label>
                   <Row>
                     <Col>
                       <Form.Control
@@ -194,7 +194,7 @@ const VirtualMachineForm = () => {
                         onChange={(e) => setMemoryUnitId(e.target.value)}
                         required
                       >
-                        <option value="">単位を選択</option>
+                        <option value="">Select Unit</option>
                         {units.map((unit) => (
                           <option key={unit.unit_id} value={unit.unit_id}>
                             {unit.name}
@@ -205,14 +205,14 @@ const VirtualMachineForm = () => {
                   </Row>
                 </Form.Group>
                 <Form.Group id="disk" className="mt-3">
-                  <Form.Label>ディスク</Form.Label>
+                  <Form.Label>Disk</Form.Label>
                   <Form.Control
                     as="select"
                     value={diskId}
                     onChange={(e) => setDiskId(e.target.value)}
                     required
                   >
-                    <option value="">ディスクを選択</option>
+                    <option value="">Select Disk</option>
                     {disks.map((disk) => (
                       <option key={disk.disk_id} value={disk.disk_id}>
                         {disk.disk_name}
@@ -221,7 +221,7 @@ const VirtualMachineForm = () => {
                   </Form.Control>
                 </Form.Group>
                 <Form.Group id="diskSize" className="mt-3">
-                  <Form.Label>ディスクサイズ</Form.Label>
+                  <Form.Label>Disk Size</Form.Label>
                   <Row>
                     <Col>
                       <Form.Control
@@ -238,7 +238,7 @@ const VirtualMachineForm = () => {
                         onChange={(e) => setDiskUnitId(e.target.value)}
                         required
                       >
-                        <option value="">単位を選択</option>
+                        <option value="">Select Unit</option>
                         {units.map((unit) => (
                           <option key={unit.unit_id} value={unit.unit_id}>
                             {unit.name}
@@ -249,14 +249,14 @@ const VirtualMachineForm = () => {
                   </Row>
                 </Form.Group>
                 <Form.Group id="cloudPool" className="mt-3">
-                  <Form.Label>クラウドプール</Form.Label>
+                  <Form.Label>Cloud Pool</Form.Label>
                   <Form.Control
                     as="select"
                     value={cloudPoolId}
                     onChange={(e) => setCloudPoolId(e.target.value)}
                     required
                   >
-                    <option value="">クラウドプールを選択</option>
+                    <option value="">Select Cloud Pool</option>
                     {cloudPools.map((pool) => {
                       const dataCenterName = dataCenters.find(
                         (dc) => dc.data_center_id === pool.data_center_id
@@ -280,7 +280,7 @@ const VirtualMachineForm = () => {
                     onChange={(e) => setOsId(e.target.value)}
                     required
                   >
-                    <option value="">OSを選択</option>
+                    <option value="">Select Operating System</option>
                     {operatingSystems.map((os) => (
                       <option key={os.os_id} value={os.os_id}>
                         {os.name}({os.version})
@@ -289,14 +289,14 @@ const VirtualMachineForm = () => {
                   </Form.Control>
                 </Form.Group>
                 <Form.Group id="user" className="mt-3">
-                  <Form.Label>ユーザー</Form.Label>
+                  <Form.Label>Manage user</Form.Label>
                   <Form.Control
                     as="select"
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
                     required
                   >
-                    <option value="">ユーザーを選択</option>
+                    <option value="">Select User</option>
                     {users.map((user) => (
                       <option key={user.user_id} value={user.user_id}>
                         {user.username} ({user.email})
@@ -329,7 +329,7 @@ const VirtualMachineForm = () => {
                   />
                 </Form.Group>
                 <Button className="w-100 mt-4" type="submit">
-                  {editMode ? "更新" : "作成"}
+                  {editMode ? "Update" : "Create"}
                 </Button>
                 {editMode && (
                   <Button
@@ -352,7 +352,7 @@ const VirtualMachineForm = () => {
                       setDiskId("");
                     }}
                   >
-                    キャンセル
+                    Cancel
                   </Button>
                 )}
               </Form>
@@ -362,20 +362,20 @@ const VirtualMachineForm = () => {
       </Row>
       <Row className="mt-4">
         <Col>
-          <h2 className="text-center mb-4">仮想マシン一覧</h2>
+          <h2 className="text-center mb-4">Virtual Machines</h2>
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>名前</th>
-                <th>メモリ</th>
-                <th>ディスク</th>
-                <th>クラウドプール</th>
+                <th>Name</th>
+                <th>Memory</th>
+                <th>Disk</th>
+                <th>Cloud Pool</th>
                 <th>OS</th>
-                <th>ユーザー</th>
+                <th>User</th>
                 <th>IPv4</th>
                 <th>IPv6</th>
                 <th>VLAN</th>
-                <th>アクション</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -427,13 +427,13 @@ const VirtualMachineForm = () => {
                       onClick={() => handleEdit(vm)}
                       className="me-2"
                     >
-                      編集
+                      Edit
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDelete(vm.vm_id)}
                     >
-                      削除
+                      Delete
                     </Button>
                   </td>
                 </tr>

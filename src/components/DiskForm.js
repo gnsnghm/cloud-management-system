@@ -141,11 +141,11 @@ const DiskForm = () => {
           <Card>
             <Card.Body>
               <h2 className="text-center mb-4">
-                {editMode ? "ディスクを編集" : "ディスクを作成"}
+                {editMode ? "Edit Disk" : "Create Disk"}
               </h2>
               <Form onSubmit={handleSubmit}>
                 <Form.Group id="name">
-                  <Form.Label>名前</Form.Label>
+                  <Form.Label>Name</Form.Label>
                   <Form.Control
                     type="text"
                     value={name}
@@ -154,7 +154,7 @@ const DiskForm = () => {
                   />
                 </Form.Group>
                 <Form.Group id="size" className="mt-3">
-                  <Form.Label>サイズ</Form.Label>
+                  <Form.Label>Size</Form.Label>
                   <Row>
                     <Col>
                       <Form.Control
@@ -171,7 +171,7 @@ const DiskForm = () => {
                         onChange={(e) => setUnitId(e.target.value)}
                         required
                       >
-                        <option value="">単位を選択</option>
+                        <option value="">Select Unit</option>
                         {units.map((unit) => (
                           <option key={unit.unit_id} value={unit.unit_id}>
                             {unit.name}
@@ -182,14 +182,14 @@ const DiskForm = () => {
                   </Row>
                 </Form.Group>
                 <Form.Group id="storage" className="mt-3">
-                  <Form.Label>ストレージ</Form.Label>
+                  <Form.Label>Storage</Form.Label>
                   <Form.Control
                     as="select"
                     value={storageId}
                     onChange={(e) => setStorageId(e.target.value)}
                     required
                   >
-                    <option value="">ストレージを選択</option>
+                    <option value="">Select Storage</option>
                     {storages.map((storage) => (
                       <option
                         key={storage.storage_device_id}
@@ -201,7 +201,7 @@ const DiskForm = () => {
                   </Form.Control>
                 </Form.Group>
                 <Button className="w-100 mt-4" type="submit">
-                  {editMode ? "更新" : "作成"}
+                  {editMode ? "Update" : "Create"}
                 </Button>
                 {editMode && (
                   <Button
@@ -216,7 +216,7 @@ const DiskForm = () => {
                       setStorageId("");
                     }}
                   >
-                    キャンセル
+                    Cancel
                   </Button>
                 )}
               </Form>
@@ -226,14 +226,14 @@ const DiskForm = () => {
       </Row>
       <Row className="mt-4">
         <Col>
-          <h2 className="text-center mb-4">ディスク一覧</h2>
+          <h2 className="text-center mb-4">Disks</h2>
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>名前</th>
-                <th>サイズ</th>
-                <th>ストレージ</th>
-                <th>アクション</th>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Storage</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -251,13 +251,13 @@ const DiskForm = () => {
                       onClick={() => handleEdit(disk)}
                       className="me-2"
                     >
-                      編集
+                      Edit
                     </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDelete(disk.disk_id)}
                     >
-                      削除
+                      Delete
                     </Button>
                   </td>
                 </tr>
