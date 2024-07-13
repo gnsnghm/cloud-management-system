@@ -17,6 +17,8 @@ import {
   deleteCloudPool,
 } from "../services/api";
 
+import "./style.css";
+
 const CloudPoolForm = () => {
   const [name, setName] = useState("");
   const [totalMemory, setTotalMemory] = useState("");

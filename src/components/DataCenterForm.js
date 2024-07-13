@@ -16,6 +16,8 @@ import {
   getCloudProviders,
 } from "../services/api";
 
+import "./style.css";
+
 const DataCenterForm = () => {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");

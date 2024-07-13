@@ -21,6 +21,8 @@ import {
   getDataCenters,
 } from "../services/api";
 
+import "./style.css";
+
 const VirtualMachineForm = () => {
   const [name, setName] = useState("");
   const [memorySize, setMemorySize] = useState("");

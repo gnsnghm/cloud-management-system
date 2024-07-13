@@ -4,6 +4,8 @@ import { LinkContainer } from "react-router-bootstrap";
 import { useLocation } from "react-router-dom";
 import "../NavBar.css";
 
+import "./style.css";
+
 const NavBar = ({ onLogout }) => {
   const location = useLocation();
 

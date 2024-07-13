@@ -15,6 +15,8 @@ import {
   updateCloudProvider,
 } from "../services/api";
 
+import "./style.css";
+
 const CloudProviderForm = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

@@ -3,6 +3,8 @@ import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api";
 
+import "./style.css";
+
 const RegisterPage = () => {
   const [username, setName] = useState("");
   const [email, setEmail] = useState("");

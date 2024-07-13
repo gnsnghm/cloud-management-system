@@ -10,6 +10,8 @@ import {
 } from "react-bootstrap";
 import { createUser, getUsers, deleteUser, updateUser } from "../services/api";
 
+import "./style.css";
+
 const UserForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");

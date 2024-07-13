@@ -18,6 +18,8 @@ import {
   getDataCenters, // 追加
 } from "../services/api";
 
+import "./style.css";
+
 const StorageForm = () => {
   const [name, setName] = useState("");
   const [totalCapacity, setTotalCapacity] = useState("");

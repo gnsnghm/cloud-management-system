@@ -4,6 +4,8 @@ import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import { loginUser } from "../services/api";
 
+import "./style.css";
+
 const LoginPage = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

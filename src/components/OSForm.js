@@ -15,6 +15,8 @@ import {
   updateOS,
 } from "../services/api";
 
+import "./style.css";
+
 const OSForm = () => {
   const [name, setName] = useState("");
   const [version, setVersion] = useState("");

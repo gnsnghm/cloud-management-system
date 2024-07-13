@@ -19,6 +19,8 @@ import {
   getDataCenters, // 追加
 } from "../services/api";
 
+import "./style.css";
+
 const DiskForm = () => {
   const [name, setName] = useState("");
   const [size, setSize] = useState("");

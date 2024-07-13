@@ -10,6 +10,8 @@ import {
 } from "react-bootstrap";
 import { createUnit, getUnits, deleteUnit, updateUnit } from "../services/api";
 
+import "./style.css";
+
 const UnitForm = () => {
   const [name, setName] = useState("");
   const [multiplier, setMultiplier] = useState("");
