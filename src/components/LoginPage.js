@@ -1,4 +1,3 @@
-// src/components/LoginPage.js
 import React, { useState } from "react";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
@@ -14,7 +13,8 @@ const LoginPage = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await loginUser({ username, password });
+      const response = await loginUser({ username, password });
+      localStorage.setItem("token", response.data.token); // トークンを保存
       onLogin();
     } catch (error) {
       console.log(error);
